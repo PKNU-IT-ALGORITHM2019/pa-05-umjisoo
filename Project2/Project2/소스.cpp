@@ -22,7 +22,6 @@ Node* search(Node *p, char* data);
 void insert(Node *root, Node*tmp);
 void add();
 void size();
-void inorder(Node *p);
 void remove(Node *p);
 void load();
 void Delete(char* tmp);
@@ -32,7 +31,7 @@ void remove_blank(char* buffer, int i);
 Node* successor(Node* p);
 void process_command();
 int main() {
-	
+
 	process_command();
 
 	return 0;
@@ -40,7 +39,7 @@ int main() {
 }
 void process_command() {
 	load();
-	char command[MAX], tmp[BUFFER_LENGTH],buffer[BUFFER_LENGTH];
+	char command[MAX], tmp[BUFFER_LENGTH], buffer[BUFFER_LENGTH];
 	while (1) {
 		printf("$ ");
 		scanf(" %s", command);
@@ -74,7 +73,7 @@ void deleteall(char* tmp) {
 	char buffer[BUFFER_LENGTH];
 	FILE*de_fp = fopen(tmp, "r");
 	while (!feof(de_fp)) {
-		fscanf(de_fp,"%s",buffer);
+		fscanf(de_fp, "%s", buffer);
 		Node* dele = search(root, buffer);
 		if (dele != NULL) {
 			remove(dele);
@@ -85,7 +84,7 @@ void deleteall(char* tmp) {
 	printf("%d words were deleted successfully.\n", dele_count);
 }
 Node* newNode(char* data) {
-	Node* n_Node= (Node*)malloc(sizeof(Node));
+	Node* n_Node = (Node*)malloc(sizeof(Node));
 	strcpy(n_Node->word, data);
 	n_Node->left = NULL;
 	n_Node->right = NULL;
@@ -104,13 +103,13 @@ void load() {
 		count++;
 		token = strtok(buffer, "(");
 		int i = 0;
-		if (!isalpha(buffer[0])) {	
+		if (!isalpha(buffer[0])) {
 			remove_blank(buffer, i);
 		}
-		else {	
+		else {
 			buffer[strlen(buffer) - 1] = '\0';
 		}
-		Node* tmp=newNode(token);
+		Node* tmp = newNode(token);
 		token = strtok(NULL, ")");
 		if (token == NULL) strcpy(tmp->form, "\0");
 		else strcpy(tmp->form, token);
@@ -120,7 +119,7 @@ void load() {
 			strcpy(tmp->form, "\0");
 		}
 		else strcpy(tmp->mean, token);
-		
+
 		if (root == NULL) {
 			root = tmp;
 		}
@@ -135,20 +134,27 @@ void size() {
 }
 void insert(Node *p, Node*tmp) {
 
-	if (strcmp(p->word, tmp->word) > 0) {
+	if (strcmp(p->word, tmp->word) >= 0) {
 		if (p->left == NULL) { p->left = tmp; tmp->P = p; }
 		else insert(p->left, tmp);
 	}
 	else if (strcmp(p->word, tmp->word) < 0) {
 		if (p->right == NULL) { p->right = tmp; tmp->P = p; }
-		else insert(p->right,tmp);
+		else insert(p->right, tmp);
 	}
 }
 void find(char* tmp) {
 	Node *p;
 	p = search(root, tmp);
-	if (p != NULL) printf("word: %s\n   class: %s\n   mean: %s\n", p->word, p->form, p->mean);
-	else printf("Not found.\n");
+	if (p == NULL) printf("Not found.\n");
+	else {
+		while (1) {
+			printf("word: %s\n   class: %s\n   mean: %s\n", p->word, p->form, p->mean);
+			if (strcmp(p->left->word, tmp) != 0)break;
+			p = search(p->left, tmp); 
+		}
+	}
+	
 }
 Node* successor(Node* p) {
 
@@ -208,7 +214,7 @@ void remove(Node *p) {
 			p->P->right = p->left;
 		else p->P->left = p->left;
 	}
-	
+
 	else {
 		Node *delete_Node = successor(p->right);
 		strcpy(p->word, delete_Node->word);
@@ -217,7 +223,7 @@ void remove(Node *p) {
 		remove(delete_Node);
 	}
 }
-void remove_blank(char* buffer,int i) {
+void remove_blank(char* buffer, int i) {
 	while (1) {
 		buffer[i] = buffer[i + 1];
 		if (buffer[i + 1] == ' ') {
